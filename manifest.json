@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Amazon Configurable Extractor",
+  "version": "1.3.28",
+  "description": "Verified Amazon transaction extraction through related transactions.",
+  "permissions": ["activeTab", "scripting", "downloads", "storage", "tabs"],
+  "host_permissions": ["https://www.amazon.com/*", "https://amazon.com/*", "https://payments.amazon.com/*"],
+  "action": { "default_title": "Amazon Configurable Extractor", "default_popup": "popup.html" },
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [{
+    "matches": ["https://www.amazon.com/*", "https://amazon.com/*", "https://payments.amazon.com/*"],
+    "js": ["description.js", "content2.js"],
+    "run_at": "document_idle"
+  }]
+}

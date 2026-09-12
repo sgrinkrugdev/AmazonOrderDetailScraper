@@ -1,0 +1,7 @@
+{
+  "site": "amazon.com",
+  "transactionPagePatterns": ["/gp/css/order-history", "/your-orders/popover"],
+  "relatedTransactionText": "View related transactions",
+  "amountMustComeFrom": "related-transactions",
+  "excludedAmountLabels": ["Grand Total", "Refund Total", "Order Total", "Order summary"]
+}

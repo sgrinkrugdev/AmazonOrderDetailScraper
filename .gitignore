@@ -1,0 +1,15 @@
+# Private exports and local data
+*.csv
+*.tsv
+amazon-transactions*.json
+*run-log*.json
+*.local.js
+*.local.json
+.env
+.env.*
+private/
+node_modules/
+*.zip
+outputs/
+reference-runs/
+tools/
