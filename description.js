@@ -1,7 +1,7 @@
 // Conservative title cleanup: retain product identity; discard trailing sales copy.
 function normalizeDescription(value) {
   // Clean each item independently so trailing copy cannot swallow the next item.
-  return String(value || '').split(/\s*;\s*/).map(normalizeItemDescription).filter(Boolean).join('; ');
+  return [...new Set(String(value || '').split(/\s*;\s*/).map(normalizeItemDescription).filter(Boolean))].join('; ');
 }
 
 function normalizeItemDescription(value) {

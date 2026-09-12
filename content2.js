@@ -76,7 +76,7 @@
       const refund = Boolean(match[4]);
       if (!refund && match[2] !== '-') continue;
       direct.push({ 'Credit card': match[1], 'Order number': match[5],
-        Date: date, 'Date source': 'Amazon transaction list date',
+        Date: date, 'Date source': 'List date',
         'Order amount': (refund ? -1 : 1) * Number(match[3].replace(/,/g, '')),
         'Item description': 'Whole Foods', 'Transaction type': refund ? 'Refund' : 'Charge',
         'Order details URL': '', 'Retrieval Result': 'Transaction list extracted', Notes: '' });
@@ -126,8 +126,8 @@
         const cardMatch = body.match(/Payment method\s+(?:(?:Amazon\s+)?(?:Visa|Mastercard|American Express|Discover)\s*(?:\*{4}|ending\s+in\s*)\d{4}|Amazon Gift Card)/i);
         const totalMatch = body.match(/Total for this Order:\s*\$\s*([\d,]+\.\d{2})/i);
         if (cardMatch && totalMatch) digitalPayments = [{
-          'Credit card': cardMatch[0].replace(/^Payment method\s+/i, '').replace(/\s+/g, ' ').trim(),
-          Date: order.date, 'Date source': 'Amazon order date (digital fallback)',
+          'Credit card': cardMatch[0].replace(/^Payment method\s+/i, '').replace(/(Visa|Mastercard|American Express|Discover)\s*ending\s+in\s*/i, '$1 ending in ').replace(/\s+/g, ' ').trim(),
+          Date: order.date, 'Date source': 'Order date (digital fallback)',
           'Order amount': Number(totalMatch[1].replace(/,/g, '')), 'Transaction type': 'Charge'
         }];
       }
@@ -162,7 +162,7 @@
         const card = suffix && payment.endsWith(suffix) ? payment : cells[3];
         const type = /^Refund$/i.test(cells[2]) ? 'Refund' : 'Charge';
         rows.push({ 'Credit card': card, 'Order number': s.orders[s.index].order,
-          Date: date, 'Date source': 'Amazon Pay transaction history',
+          Date: date, 'Date source': 'Transaction history',
           'Order amount': (type === 'Refund' ? -1 : 1) * Number(amount[1].replace(/,/g, '')),
           'Item description': merchant, 'Transaction type': type, 'Order details URL': location.href,
           Notes: merchant && payment.endsWith(suffix || 'NO CARD') ? '' : 'Merchant or full payment card unavailable' });
@@ -188,7 +188,7 @@
           !/\b(?:Pending|Authorization|Cancelled|Declined)\b/i.test(value) &&
           /^Order\s*#/i.test(text(link)) && amount[1] === '-' ? 'Charge' : '';
         const numeric = Number(amount[2].replace(/,/g, ''));
-        rows.push({ 'Credit card': card, 'Order number': s.orders[s.index].order, Date: transactionDate || s.orders[s.index].date, 'Date source': transactionDate ? 'Amazon related transaction date' : 'Amazon order date fallback', 'Order amount': type === 'Refund' ? -numeric : type === 'Charge' ? numeric : '', 'Item description': s.itemDescription || '', 'Transaction type': type, 'Order details URL': location.href, 'Retrieval Result': 'Related transaction extracted', Notes: [card ? '' : 'Payment method missing', type ? '' : 'Transaction type ambiguous', s.itemDescription ? '' : 'Item mapping failed'].filter(Boolean).join('; ') }); break;
+        rows.push({ 'Credit card': card, 'Order number': s.orders[s.index].order, Date: transactionDate || s.orders[s.index].date, 'Date source': transactionDate ? 'Transaction date' : 'Amazon order date fallback', 'Order amount': type === 'Refund' ? -numeric : type === 'Charge' ? numeric : '', 'Item description': s.itemDescription || '', 'Transaction type': type, 'Order details URL': location.href, 'Retrieval Result': 'Related transaction extracted', Notes: [card ? '' : 'Payment method missing', type ? '' : 'Transaction type ambiguous', s.itemDescription ? '' : 'Item mapping failed'].filter(Boolean).join('; ') }); break;
       }
     }
     await advance(s, rows, rows.length ? '' : 'Related transaction rows not found');

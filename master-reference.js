@@ -1,5 +1,5 @@
 // Optional reference rows. Personal transaction records are excluded.
-const masterRows = [];
+const masterRows = globalThis.amazonMasterRows || [];
 function masterKey(order, amount, date) {
   if (!String(amount ?? '').trim() || !Number.isFinite(Number(amount)) || !/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return null;
   return [String(order || '').trim(), Math.round(Number(amount) * 100), date].join('|');
