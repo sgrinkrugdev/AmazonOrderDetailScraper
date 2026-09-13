@@ -1,6 +1,6 @@
 # Amazon Order Detail Scraper
 
-Amazon Configurable Extractor is a Manifest V3 Chrome extension, version 1.4.5, that extracts transactions from an open Amazon account tab and downloads CSV and JSON results.
+Amazon Configurable Extractor is a Manifest V3 Chrome extension, version 1.4.6, that extracts transactions from an open Amazon account tab and downloads CSV and JSON results.
 
 ## Install and run
 
@@ -29,7 +29,7 @@ The extension processes pagination and visits order and related transaction page
 
 Order CSV output has 13 columns: Credit card, Order number, Date source, Verification, Order amount, Date, MD Verify, MD Match, Item description, MD Failure reason, Transaction type, Order details URL, and Overall Result.
 
-Personal reference order numbers, transaction amounts, and dates have been removed. Without reference rows, Overall Result reports NOT COMPARED (no reference data). Extraction verification remains separate from reference comparison. Gift Card CSV output has Date, Amount, Transaction type, Description, Debug transaction ID, Source fingerprint, Visible amount, Amazon Verify, MD Import, MD Verify, and MD Failure reason columns. Session records are stored in Chrome local extension storage and results are downloaded locally.
+Personal reference order numbers, transaction amounts, and dates have been removed. Without reference rows, Overall Result reports NOT COMPARED (no reference data). Extraction verification remains separate from reference comparison. Gift Card CSV output has Date, Amount, Transaction type, Description, Balance, Debug transaction ID, Source fingerprint, Visible amount, Amazon Verify, MD Import, MD Verify, and MD Failure reason columns. Source fingerprint is generated from Date, Description, Amount, and Balance; Debug transaction ID is diagnostic only. Session records are stored in Chrome local extension storage and results are downloaded locally.
 
 Do not commit exported transactions, run logs, or personal reference data. If you populate masterRows locally, review changes before committing: .gitignore cannot protect personal edits to tracked source files.
 
@@ -40,6 +40,7 @@ Original date defaults remain June 1 through September 10, 2026; select dates fo
 ## Development
 
 No build step or package installation is required. Check JavaScript syntax with node --check filename.js for each JavaScript file.
+
 
 
 

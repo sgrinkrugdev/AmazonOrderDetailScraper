@@ -1,5 +1,5 @@
 const COLUMNS = ['Credit card','Order number','Date source','Verification','Order amount','Date','MD Verify','MD Match','Item description','MD Failure reason','Transaction type','Order details URL','Overall Result'];
-const GIFT_CARD_COLUMNS = ['Date','Amount','Transaction type','Description','Debug transaction ID','Source fingerprint','Visible amount','Amazon Verify','MD Import','MD Verify','MD Failure reason'];
+const GIFT_CARD_COLUMNS = ['Date','Amount','Transaction type','Description','Balance','Debug transaction ID','Source fingerprint','Visible amount','Amazon Verify','MD Import','MD Verify','MD Failure reason'];
 
 function cell(v) {
   return '"' + String(v ?? '').replaceAll('"', '""') + '"';
@@ -53,6 +53,7 @@ function giftCardCsv(records) {
     'Amount': record.Amount ?? '',
     'Transaction type': record['Transaction type'] || '',
     'Description': record.Description || '',
+    'Balance': record.Balance ?? '',
     'Debug transaction ID': record['Debug transaction ID'] || '',
     'Source fingerprint': record['Source fingerprint'] || '',
     'Visible amount': record['Visible amount'] || '',
@@ -104,3 +105,4 @@ function buildGiftCardRunLog(session, status, error) {
   if (error) log.error = error;
   return log;
 }
+

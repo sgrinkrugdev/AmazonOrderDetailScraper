@@ -96,6 +96,13 @@
     return description || 'Gift Card Activity';
   }
 
+  function moneyValueOf(value) {
+    const match = String(value).match(/([+-])?\s*\$\s*([\d,]+\.\d{2})/);
+    if (!match) return { raw: '', normalized: '' };
+    const numeric = Number(match[2].replace(/,/g, ''));
+    return { raw: match[0].replace(/\s+/g, ''), normalized: Number.isInteger(numeric) ? String(numeric) : String(numeric) };
+  }
+
   function visibleAmountOf(value) {
     const matches = [...String(value).matchAll(/([+-])?\s*\$\s*([\d,]+\.\d{2})/g)];
     if (!matches.length) return null;
@@ -154,11 +161,12 @@
       if (!date || date < session.effectiveStart || date > session.end) continue;
       const amount = visibleAmountOf(cells.length >= 3 ? text(cells[2]) : rowText);
       if (!amount) continue;
+      const balance = cells.length >= 4 ? moneyValueOf(text(cells[3])) : moneyValueOf('');
       const description = descriptionOf(row, cells);
       const transactionType = transactionTypeOf(description, rowText);
       const debugId = debugIdOf(row, description, date, amount);
       const normalized = normalizedAmount(amount, transactionType);
-      const sourceFingerprint = hash([date, description, transactionType, amount.raw, debugId, rowText].join('|'));
+      const sourceFingerprint = hash([date, description, String(normalized), balance.normalized].join('|'));
       const key = `${debugId}|${sourceFingerprint}`;
       if (seen.has(key)) continue;
       seen.add(key);
@@ -169,8 +177,9 @@
         Description: description,
         'Debug transaction ID': debugId,
         'Source fingerprint': sourceFingerprint,
+        Balance: balance.normalized,
         'Visible amount': amount.raw,
-        'Amazon Verify': date && amount.raw && transactionType && description ? 'VERIFIED' : 'NOT VERIFIED',
+        'Amazon Verify': date && amount.raw && balance.raw && transactionType && description ? 'VERIFIED' : 'NOT VERIFIED',
         'MD Import': '',
         'MD Verify': '',
         'MD Failure reason': ''
@@ -280,6 +289,7 @@
     return true;
   });
 })();
+
 
 
 

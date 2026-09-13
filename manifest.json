@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Amazon Configurable Extractor",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Verified Amazon transaction extraction through related transactions.",
   "permissions": ["activeTab", "scripting", "downloads", "storage", "tabs"],
   "host_permissions": ["https://www.amazon.com/*", "https://amazon.com/*", "https://payments.amazon.com/*"],
@@ -13,6 +13,7 @@
     "run_at": "document_idle"
   }]
 }
+
 
 
 
