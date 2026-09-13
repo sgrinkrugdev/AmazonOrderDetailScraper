@@ -212,9 +212,10 @@
         pagesProcessed:0,startedAt:new Date().toISOString()};
       await chrome.storage.local.set({amazonSession:s});
       reply({ok:true});
-      if (location.search.includes('transactionTag')) location.href='https://www.amazon.com/cpe/yourpayments/transactions';
+      if (!/\/cpe\/yourpayments\/transactions/.test(location.pathname) || location.search.includes('transactionTag')) location.href='https://www.amazon.com/cpe/yourpayments/transactions';
       else await collect(s);
     })().catch(error => { reply({ok:false,error:error.message}); return save({phase:'failed',error:error.message}); });
     return true;
   });
 })();
+
