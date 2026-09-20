@@ -31,6 +31,19 @@
     return null;
   }
   const orderNumber = value => (String(value).match(/Order\s*#\s*([A-Z0-9-]+)/i) || [,''])[1];
+  const noisyTitle = value => /\b(?:out of 5 stars|FREE delivery|Two-Day|Tomorrow|\$\s*\d|Currently unavailable|sponsored|Shop now|Add to Cart)\b/i.test(value);
+  const trustedTitleRoot = () => document.querySelector('.orderDetails,#orderDetails,[data-test-id="order-details"],[class*="order-details"]') || document.body;
+  const trustedProductTitles = (root = trustedTitleRoot()) => {
+    const blocked = '#navbar,#navFooter,#ewc-content,#rhf,[id*="sims"],[id*="carousel"],[class*="carousel"],[data-component-type="s-search-result"],[aria-label*="Sponsored"]';
+    const links = [...root.querySelectorAll('a[href*="/dp/"],a[href*="/gp/product/"]')]
+      .filter(element => !element.closest(blocked))
+      .map(text)
+      .map(value => value.replace(/\s+/g, ' ').trim())
+      .filter(value => value.length > 3 && value.length < 260 && !noisyTitle(value));
+    return [...new Set(links)];
+  };
+  const literalDescriptionOf = titles => [...new Set((titles || []).map(value => String(value || '').replace(/\s+/g, ' ').trim()).filter(Boolean))].join('; ');
+  const normalizedDescriptionOf = titles => literalDescriptionOf(titles.map(normalizeDescription).filter(Boolean));
   const cardOf = value => { const m=String(value).match(/(?:Amazon\s+)?(?:Visa|Mastercard|American Express|Discover)\s*(?:\*{0,4}|ending\s+in\s*)(\d{4})/i); if(m) return m[0].replace(/\s+/g,' ').trim(); const gift=String(value).match(/Amazon\s+Gift\s+Card/i); return gift ? gift[0] : ''; };
 
   const stopped = async () => { const {amazonSession:s} = await chrome.storage.local.get('amazonSession'); return !s || s.runId !== runId || ['stopped','failed','completed'].includes(s.phase); };
@@ -78,7 +91,7 @@
       direct.push({ 'Credit card': match[1], 'Order number': match[5],
         Date: date, 'Date source': 'List date',
         'Order amount': (refund ? -1 : 1) * Number(match[3].replace(/,/g, '')),
-        'Item description': 'Whole Foods', 'Transaction type': refund ? 'Refund' : 'Charge',
+        'Item description': 'Whole Foods', 'Literal Description': 'Whole Foods', 'LD Verified': 'VERIFIED', 'Transaction type': refund ? 'Refund' : 'Charge',
         'Order details URL': '', 'Retrieval Result': 'Transaction list extracted', Notes: '' });
     }
     const records = [...(s.records || []), ...direct];
@@ -116,10 +129,10 @@
     if (/^D\d+-/.test(s.orders[s.index].order)) {
       const order = s.orders[s.index];
       if (!text(document.body).includes(order.order)) return advance(s, [], 'Digital order identity not found');
-      const titles = [...document.querySelectorAll('a[href*="/dp/"],a[href*="/gp/product/"]')]
-        .filter(el => !el.closest('#navbar,#navFooter,#ewc-content'))
-        .map(text).filter(value => value.length > 3);
-      const description = [...new Set(titles.map(normalizeDescription))].join('; ');
+      const titles = trustedProductTitles();
+      const literalDescription = literalDescriptionOf(titles);
+      const description = normalizedDescriptionOf(titles);
+      const ldVerified = literalDescription ? 'VERIFIED' : 'NOT VERIFIED';
       let digitalPayments = order.digitalPayments || [];
       if (!digitalPayments.length) {
         const body = text(document.body);
@@ -134,14 +147,16 @@
       if (!digitalPayments.length) return advance(s, [], 'Digital payment not found on transaction or order page');
       return advance(s, digitalPayments.map(payment => ({...payment,
         'Order number': order.order, 'Order details URL': location.href,
-        'Item description': description, Notes: description ? '' : 'Digital product title not found' })), '');
+        'Item description': description, 'Literal Description': literalDescription, 'LD Verified': ldVerified, Notes: description ? '' : 'Digital product title not found' })), '');
     }
     if (/transactionTag=|Transactions from Order/i.test(location.href + ' ' + text(document.body))) return extract(s);
-    const items = [...document.querySelectorAll('.orderDetails a[href*="/dp/"],#orderDetails a[href*="/dp/"],.orderDetails a[href*="/gp/product/"],#orderDetails a[href*="/gp/product/"]')].map(text).filter(x => x.length > 3);
+    const items = trustedProductTitles();
     const button = [...document.querySelectorAll('a,button')].find(e => /View related transactions/i.test(text(e)));
     if (!button) return advance(s, [], 'View related transactions control not found');
-    const itemDescription = [...new Set(items.map(normalizeDescription).filter(Boolean))].join('; ');
-    await save({ phase: 'opening-related-transactions', itemDescription }); if (await stopped()) return; button.click(); setTimeout(() => extract({ ...s, itemDescription }), 1500);
+    const literalDescription = literalDescriptionOf(items);
+    const itemDescription = normalizedDescriptionOf(items);
+    const ldVerified = literalDescription ? 'VERIFIED' : 'NOT VERIFIED';
+    await save({ phase: 'opening-related-transactions', itemDescription, literalDescription, ldVerified }); if (await stopped()) return; button.click(); setTimeout(() => extract({ ...s, itemDescription, literalDescription, ldVerified }), 1500);
   }
 
   async function extractAmazonPay(s) {
@@ -164,7 +179,7 @@
         rows.push({ 'Credit card': card, 'Order number': s.orders[s.index].order,
           Date: date, 'Date source': 'Transaction history',
           'Order amount': (type === 'Refund' ? -1 : 1) * Number(amount[1].replace(/,/g, '')),
-          'Item description': merchant, 'Transaction type': type, 'Order details URL': location.href,
+          'Item description': merchant, 'Literal Description': merchant, 'LD Verified': merchant ? 'VERIFIED' : 'NOT VERIFIED', 'Transaction type': type, 'Order details URL': location.href,
           Notes: merchant && payment.endsWith(suffix || 'NO CARD') ? '' : 'Merchant or full payment card unavailable' });
       }
     }
@@ -188,13 +203,13 @@
           !/\b(?:Pending|Authorization|Cancelled|Declined)\b/i.test(value) &&
           /^Order\s*#/i.test(text(link)) && amount[1] === '-' ? 'Charge' : '';
         const numeric = Number(amount[2].replace(/,/g, ''));
-        rows.push({ 'Credit card': card, 'Order number': s.orders[s.index].order, Date: transactionDate || s.orders[s.index].date, 'Date source': transactionDate ? 'Transaction date' : 'Amazon order date fallback', 'Order amount': type === 'Refund' ? -numeric : type === 'Charge' ? numeric : '', 'Item description': s.itemDescription || '', 'Transaction type': type, 'Order details URL': location.href, 'Retrieval Result': 'Related transaction extracted', Notes: [card ? '' : 'Payment method missing', type ? '' : 'Transaction type ambiguous', s.itemDescription ? '' : 'Item mapping failed'].filter(Boolean).join('; ') }); break;
+        rows.push({ 'Credit card': card, 'Order number': s.orders[s.index].order, Date: transactionDate || s.orders[s.index].date, 'Date source': transactionDate ? 'Transaction date' : 'Amazon order date fallback', 'Order amount': type === 'Refund' ? -numeric : type === 'Charge' ? numeric : '', 'Item description': s.itemDescription || '', 'Literal Description': s.literalDescription || '', 'LD Verified': s.ldVerified || (s.literalDescription ? 'VERIFIED' : 'NOT VERIFIED'), 'Transaction type': type, 'Order details URL': location.href, 'Retrieval Result': 'Related transaction extracted', Notes: [card ? '' : 'Payment method missing', type ? '' : 'Transaction type ambiguous', s.itemDescription ? '' : 'Item mapping failed'].filter(Boolean).join('; ') }); break;
       }
     }
     await advance(s, rows, rows.length ? '' : 'Related transaction rows not found');
   }
 
-  async function advance(s, rows, error) { if (await stopped()) return; const records = [...(s.records || []), ...rows]; if (error) records.push({ 'Credit card': '', 'Order number': s.orders[s.index].order, Date: s.orders[s.index].date, 'Order amount': '', 'Item description': '', 'Transaction type': '', 'Order details URL': s.orders[s.index].url, 'Retrieval Result': 'Failed', Notes: error }); const index = s.index + 1; await save({ phase: index < s.orders.length ? 'opening-order-details' : 'completed', index, records }); if (index < s.orders.length && s.orders[index].url) location.href = s.orders[index].url; else if (index < s.orders.length) advance({ ...s, index, records }, [], s.orders[index].linkError); }
+  async function advance(s, rows, error) { if (await stopped()) return; const records = [...(s.records || []), ...rows]; if (error) records.push({ 'Credit card': '', 'Order number': s.orders[s.index].order, Date: s.orders[s.index].date, 'Order amount': '', 'Item description': '', 'Literal Description': '', 'LD Verified': 'NOT VERIFIED', 'Transaction type': '', 'Order details URL': s.orders[s.index].url, 'Retrieval Result': 'Failed', Notes: error }); const index = s.index + 1; await save({ phase: index < s.orders.length ? 'opening-order-details' : 'completed', index, records }); if (index < s.orders.length && s.orders[index].url) location.href = s.orders[index].url; else if (index < s.orders.length) advance({ ...s, index, records }, [], s.orders[index].linkError); }
 
   chrome.storage.local.get('amazonSession').then(async ({ amazonSession: s }) => {
     if (!s || s.extensionVersion !== version || s.ownerTab !== await tabId ||
@@ -218,4 +233,6 @@
     return true;
   });
 })();
+
+
 

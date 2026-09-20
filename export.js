@@ -1,4 +1,4 @@
-const COLUMNS = ['Credit card','Order number','Date source','Verification','Order amount','Date','MD Verify','MD Match','Item description','MD Failure reason','Transaction type','Order details URL','Overall Result'];
+const COLUMNS = ['Credit card','Order number','Date source','Verification','Order amount','Date','MD Verify','MD Match','Item description','Literal Description','LD Verified','MD Failure reason','Transaction type','Order details URL','Overall Result'];
 const GIFT_CARD_COLUMNS = ['Date','Amount','Transaction type','Description','Balance','Debug transaction ID','Source fingerprint','Visible amount','Amazon Verify','MD Import','MD Verify','MD Failure reason'];
 
 function cell(v) {
@@ -34,6 +34,8 @@ function buildExportRows(records) {
       'MD Verify': r['MD Verify'] || '',
       'MD Match': r['MD Match'] || '',
       'Item description': r['Item description'] || '',
+      'Literal Description': r['Literal Description'] || '',
+      'LD Verified': r['LD Verified'] || (r['Literal Description'] ? 'VERIFIED' : ''),
       'MD Failure reason': reason,
       'Transaction type': r['Transaction type'] || '',
       'Order details URL': /Whole Foods/i.test(r['Item description'] || '') ? '' : (r['Order details URL'] || ''),
@@ -105,4 +107,6 @@ function buildGiftCardRunLog(session, status, error) {
   if (error) log.error = error;
   return log;
 }
+
+
 
