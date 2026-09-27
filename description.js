@@ -11,6 +11,13 @@ function normalizeItemDescription(value) {
   const identities = [
     [/^(ASEVAT)\b.*\bTravel Bottles\b/i, "$1 Travel Bottles"],
     [/^(Acxico)\b.*\bLED Driver\b/i, "$1 LED Driver"],
+    [/^(YZAESHAY)\b.*\b(?:Laptop Charger|USB C Power Adapter)\b/i, "$1 65W USB C Laptop Charger"],
+    [/^(PROZOR)\b.*\bDigital to Analog Audio Converter\b/i, "$1 Digital to Analog Audio Converter"],
+    [/^(InnoStars)\b.*\bSpeaker Cable\b/i, "$1 12AWG Speaker Cable"],
+    [/^(AirGearPro G-500)\b.*\bRespirator Mask\b/i, "$1 Reusable Respirator Mask"],
+    [/^(Kitsch XL Microfiber Hair Towel Wrap)\b/i, "$1"],
+    [/^(TOTO)(?:Â®|®)?\s+(SoftClose)(?:Â®|®)?\b.*\bElongated Toilet Seat\b/i, "$1 $2 Elongated Toilet Seat and Lid"],
+    [/^(Amazon Basics)\b.*\b3-Blade Razor Refills\b/i, "$1 3-Blade Razor Refills"],
     [/^(AVCOO)\b.*\b(?:TENS|EMS)\b.*\b(?:Muscle Stimulator|Unit)\b/i, "$1 TENS EMS Muscle Stimulator"],
     [/^(Broan-NuTone FG701S)\b.*\b(?:Bathroom Exhaust|Bath Fan).*\b(?:Grille|Cover)\b/i, "$1 Bathroom Exhaust Grille Cover"],
     [/^(\d+\"\s+Flexible Magnesium Anode Rod)\b/i, "$1"],
