@@ -2,7 +2,7 @@ try {
   importScripts('master-data.local.js');
 } catch (error) {
 }
-importScripts('master-reference.js', 'export.js');
+importScripts('master-reference.js', 'csv-manifest.js', 'export.js');
 
 // Navigation coordinator for the active-tab extraction workflow.
 // The content scripts persist cursors in chrome.storage and resume after
@@ -101,3 +101,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   chrome.tabs.update(sender.tab.id, { url: message.url }).then(() => sendResponse({ ok: true })).catch(error => sendResponse({ ok: false, error: error.message }));
   return true;
 });
+

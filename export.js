@@ -1,5 +1,5 @@
-const COLUMNS = ['Credit card','Order number','Date source','Verification','Order amount','Date','MD Verify','MD Match','Item description','Literal Description','LD Verified','MD Failure reason','Transaction type','Order details URL','Overall Result'];
-const GIFT_CARD_COLUMNS = ['Date','Amount','Transaction type','Description','Balance','Debug transaction ID','Source fingerprint','Visible amount','Amazon Verify','MD Import','MD Verify','MD Failure reason'];
+const COLUMNS = globalThis.amazonCsvManifest.transactionColumns;
+const GIFT_CARD_COLUMNS = globalThis.amazonCsvManifest.giftCardColumns;
 
 function cell(v) {
   return '"' + String(v ?? '').replaceAll('"', '""') + '"';
@@ -110,6 +110,7 @@ function buildGiftCardRunLog(session, status, error) {
   if (error) log.error = error;
   return log;
 }
+
 
 
 

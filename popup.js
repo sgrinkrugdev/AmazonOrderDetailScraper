@@ -97,7 +97,7 @@ async function getTransactions(options = {}) {
   try {
     setRunning(true);
     await saveConfig();
-    await send({ type: 'START_EXTRACTION_V9', start: $('start').value, end: $('end').value }, 'orders');
+    await send({ type: 'START_EXTRACTION_V10', start: $('start').value, end: $('end').value }, 'orders');
     let session;
     for (;;) {
       await sleep(1000);
@@ -185,6 +185,7 @@ chrome.storage.local.get(['amazonSession', 'amazonGiftCardSession']).then(({ ama
 });
 
 loadConfig().catch(error => status('ERROR: ' + error.message));
+
 
 
 
