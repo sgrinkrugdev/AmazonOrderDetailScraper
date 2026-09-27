@@ -8,6 +8,7 @@ function cell(v) {
 function cleanCardName(value) {
   return String(value || '')
     .replace(/\s+/g, ' ')
+    .replace(/\s*([•*]{4})\s*(\d{4})/g, ' ****$2')
     .replace(/(Visa|Mastercard|American Express|Discover)\s*ending\s+in\s*/i, '$1 ending in ')
     .trim();
 }
@@ -15,6 +16,7 @@ function cleanCardName(value) {
 function cleanDateSource(value, fallbackDate) {
   return String(value || (fallbackDate ? 'Transaction date' : ''))
     .replace(/\s+/g, ' ')
+    .replace(/\s*([•*]{4})\s*(\d{4})/g, ' ****$2')
     .replace('Amazon Pay transaction history', 'Transaction history')
     .replace('Amazon order date (digital fallback)', 'Order date (digital fallback)');
 }

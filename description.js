@@ -9,6 +9,16 @@ function normalizeItemDescription(value) {
   // Recognize product identity before removing specifications. A comma can
   // occur in a compatibility list before the product noun (screen protectors).
   const identities = [
+    [/^(ASEVAT)\b.*\bTravel Bottles\b/i, "$1 Travel Bottles"],
+    [/^(Acxico)\b.*\bLED Driver\b/i, "$1 LED Driver"],
+    [/^(AVCOO)\b.*\b(?:TENS|EMS)\b.*\b(?:Muscle Stimulator|Unit)\b/i, "$1 TENS EMS Muscle Stimulator"],
+    [/^(Broan-NuTone FG701S)\b.*\b(?:Bathroom Exhaust|Bath Fan).*\b(?:Grille|Cover)\b/i, "$1 Bathroom Exhaust Grille Cover"],
+    [/^(\d+\"\s+Flexible Magnesium Anode Rod)\b/i, "$1"],
+    [/^(S89852000)\b.*\bVentilation Fan Grille and Lens\b/i, "$1 Ventilation Fan Grille and Lens"],
+    [/^(HOMESTEAD)\b.*\b(?:Wood Storage Bin|Storage Organizer)\b/i, "$1 Wood Storage Bin"],
+    [/^(JLab Go Air Pop\+)[\s,;:-]*.*\b(?:True Wireless Earbuds|Bluetooth Earbuds|Earphones|Headphones)\b/i, "$1 True Wireless Earbuds"],
+    [/^(Rapbin)\b.*\b(?:Womens|Women's) Tops\b/i, "$1 Women's 3/4 Sleeve Top"],
+    [/^(ONN Android TV 4K UHD Streaming Device)\b/i, "$1"],
     [/^(NEW'C)\b.*\biPhone 16,\s*iPhone 15\s+Screen Protector\b/i, "$1 iPhone 16 / iPhone 15 Screen Protector"],
     [/^(Mintreus)\b.*\b(?:Shirt|Shirts|Blouses)\b/i, "$1 Women's Short Sleeve Shirt"],
     [/^(WIHOLL)\b.*\bTank Tops\b/i, "$1 Women's Tank Top"],
@@ -89,3 +99,7 @@ function normalizeItemDescription(value) {
     .replace(/\s*\[Download\]\s*$/i, '')
     .trim();
 }
+
+
+
+

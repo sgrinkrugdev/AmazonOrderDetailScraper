@@ -18,6 +18,7 @@ function giftCardSessionExportKey(session) {
   return 'amazonGiftCardExport:' + (session?.runId || session?.startedAt || `${session?.start || ''}:${session?.end || ''}`);
 }
 
+
 async function downloadText(filename, text, mime) {
   const url = `data:${mime};charset=utf-8,${encodeURIComponent(text)}`;
   return chrome.downloads.download({ url, filename, saveAs: false });
@@ -32,14 +33,6 @@ async function exportCompletedSession(session) {
     if (state?.csvId && state?.logId) return { ok: true, alreadyExported: true, key };
 
     const records = session.records || [];
-    const juneStartFailure = session.start <= '2026-06-01' && records.length < 100;
-    if (juneStartFailure) {
-      const error = 'Pagination failure: fewer than 100 records collected for a June 1 start.';
-      const logId = await downloadText('amazon-transactions-run-log.json', JSON.stringify(buildRunLog(session, 'failed', error), null, 2), 'application/json');
-      await chrome.storage.local.set({ [key]: { logId, error } });
-      throw new Error(error + ' Diagnostic log saved.');
-    }
-
     const csvId = await downloadText('amazon-transactions.csv', csv(records), 'text/csv');
     await chrome.storage.local.set({ [key]: { ...(state || {}), csvId } });
     const logId = await downloadText('amazon-transactions-run-log.json', JSON.stringify(buildRunLog(session, 'completed'), null, 2), 'application/json');

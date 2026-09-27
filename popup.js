@@ -2,6 +2,11 @@ const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const status = value => $('status').textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
 
+function showRuntimeVersion() {
+  const title = document.querySelector('h3');
+  if (title && !title.textContent.includes(runtimeVersion())) title.textContent = 'Amazon Configurable Extractor ' + runtimeVersion();
+}
+
 function defaults() {
   $('start').value = '2026-06-01';
   $('end').value = '2026-09-10';
@@ -13,6 +18,7 @@ function defaults() {
 
 async function loadConfig() {
   defaults();
+  showRuntimeVersion();
   const { amazonExtractorConfig = {} } = await chrome.storage.local.get('amazonExtractorConfig');
   $('start').value = amazonExtractorConfig.start || $('start').value;
   $('end').value = amazonExtractorConfig.end || $('end').value;
@@ -67,12 +73,8 @@ async function findAmazonTab(workflow) {
 async function send(message, workflow) {
   const tab = await findAmazonTab(workflow);
   if (!tab) throw Error('No open Amazon tab found');
-  try {
-    return await chrome.tabs.sendMessage(tab.id, message);
-  } catch (error) {
-    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['description.js', 'content2.js', 'giftcard.js'] });
-    return chrome.tabs.sendMessage(tab.id, message);
-  }
+  await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['description.js', 'content2.js', 'giftcard.js'] });
+  return chrome.tabs.sendMessage(tab.id, message);
 }
 
 async function exportCompleted() {
@@ -94,7 +96,7 @@ async function getTransactions(options = {}) {
   try {
     setRunning(true);
     await saveConfig();
-    await send({ type: 'START_EXTRACTION', start: $('start').value, end: $('end').value }, 'orders');
+    await send({ type: 'START_EXTRACTION_V7', start: $('start').value, end: $('end').value }, 'orders');
     let session;
     for (;;) {
       await sleep(1000);
@@ -182,3 +184,7 @@ chrome.storage.local.get(['amazonSession', 'amazonGiftCardSession']).then(({ ama
 });
 
 loadConfig().catch(error => status('ERROR: ' + error.message));
+
+
+
+

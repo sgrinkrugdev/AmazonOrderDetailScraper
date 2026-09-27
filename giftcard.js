@@ -1,10 +1,10 @@
 (() => {
-  if (globalThis.amazonGiftCardExtractorLoaded) return;
-  globalThis.amazonGiftCardExtractorLoaded = true;
+  const version = chrome.runtime.getManifest().version;
+  if (globalThis.amazonGiftCardExtractorLoadedVersion === version) return;
+  globalThis.amazonGiftCardExtractorLoadedVersion = version;
 
   let runId = null;
   const tabId = chrome.runtime.sendMessage({ type: 'EXTRACTOR_TAB_ID' }).then(r => r.tabId);
-  const version = chrome.runtime.getManifest().version;
   const text = element => (element?.innerText || element?.textContent || element?.getAttribute?.('aria-label') || '').replace(/\s+/g, ' ').trim();
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   const DEFAULT_MAX_PAGES = 120;

@@ -1,6 +1,6 @@
 # Amazon Order Detail Scraper
 
-Amazon Configurable Extractor is a Manifest V3 Chrome extension, version 1.4.7, that extracts transactions from an open Amazon account tab and downloads CSV and JSON results.
+Amazon Configurable Extractor is a Manifest V3 Chrome extension, version 1.5.5, that extracts transactions from an open Amazon account tab and downloads CSV and JSON results.
 
 ## Install and run
 
@@ -35,7 +35,7 @@ Do not commit exported transactions, run logs, or personal reference data. If yo
 
 ## Current limitations
 
-Original date defaults remain June 1 through September 10, 2026; select dates for each run. The inherited workflow rejects fewer than 100 records for a start date on or before June 1, 2026. Amazon page changes can affect extraction, so review downloaded results. This publication was checked for JavaScript syntax and empty-reference export behavior, but was not tested against a live Amazon account.
+Original date defaults remain June 1 through September 10, 2026; select dates for each run. The transaction list now uses Amazon's infinite-scroll layout and captures row snapshots while scrolling until it reaches transactions older than the configured start date or the captured row set stops growing. Amazon page changes can affect extraction, so review downloaded results.
 
 ## Development
 
@@ -48,3 +48,9 @@ No build step or package installation is required. Check JavaScript syntax with 
 
 
 
+
+
+
+## Master comparison data
+
+The extension compares exported transactions against `master-data.local.js` automatically; no popup file-picker click is required. Refresh that local snapshot by editing `master-data.config.local.json` and running `refresh-master-data.ps1`. The default configured source is `D:\Docs\Project\MoneyDanceUpdate\test_data\Master Test Data\Amazon Transaction 260601-260919.csv`.
