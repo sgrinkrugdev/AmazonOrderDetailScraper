@@ -1,6 +1,7 @@
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const status = value => $('status').textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+const runtimeVersion = () => chrome.runtime.getManifest().version;
 
 function showRuntimeVersion() {
   const title = document.querySelector('h3');
@@ -96,7 +97,7 @@ async function getTransactions(options = {}) {
   try {
     setRunning(true);
     await saveConfig();
-    await send({ type: 'START_EXTRACTION_V8', start: $('start').value, end: $('end').value }, 'orders');
+    await send({ type: 'START_EXTRACTION_V9', start: $('start').value, end: $('end').value }, 'orders');
     let session;
     for (;;) {
       await sleep(1000);
@@ -184,6 +185,8 @@ chrome.storage.local.get(['amazonSession', 'amazonGiftCardSession']).then(({ ama
 });
 
 loadConfig().catch(error => status('ERROR: ' + error.message));
+
+
 
 
 

@@ -397,7 +397,7 @@
     else if (['opening-order-details','opening-related-transactions'].includes(s.phase)) await detail(s);
   }).catch(error => save({phase:'failed',error:error.message}));
   chrome.runtime.onMessage.addListener((message, _, reply) => {
-    if (message.type !== 'START_EXTRACTION_V8') return;
+    if (message.type !== 'START_EXTRACTION_V9') return;
     (async () => {
       runId = crypto.randomUUID();
       const s = {start:message.start,end:message.end,runId,ownerTab:await tabId,
@@ -411,6 +411,7 @@
     return true;
   });
 })();
+
 
 
 
