@@ -10,6 +10,7 @@ function cleanCardName(value) {
     .replace(/\s+/g, ' ')
     .replace(/\s*([•*]{4})\s*(\d{4})/g, ' ****$2')
     .replace(/(Visa|Mastercard|American Express|Discover)\s*ending\s+in\s*/i, '$1 ending in ')
+    .replace(/^Visa Signature \*\*\*\*2025$/i, 'Amazon Visa ****2025')
     .trim();
 }
 
@@ -109,6 +110,8 @@ function buildGiftCardRunLog(session, status, error) {
   if (error) log.error = error;
   return log;
 }
+
+
 
 
 
